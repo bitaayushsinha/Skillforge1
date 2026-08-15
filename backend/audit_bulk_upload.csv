@@ -1,0 +1,3 @@
+name,email,password,institution_id,specialization_id
+Valid Student,valid_bulk_6960@skillforge.com,pass123,9,1
+Invalid Student,invalid_email,pass123,9,1

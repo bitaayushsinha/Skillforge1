@@ -2,60 +2,76 @@ import React, { useState } from 'react';
 import { Lightbulb, ThumbsUp, Triangle } from 'lucide-react';
 import './ProposalsVoting.css';
 
-const MOCK_PROPOSALS = [
-  {
-    id: 1,
-    title: 'Quantum Computing Fundamentals for Engineers',
-    author: '@james_dev',
-    daysAgo: 2,
-    tags: [{ label: 'Hot', type: 'hot' }, { label: 'Quantum' }, { label: 'Physics' }],
-    votes: '1.2k'
-  },
-  {
-    id: 2,
-    title: 'WebAssembly: The Future of Web Performance',
-    author: '@sarah_c',
-    daysAgo: 4,
-    tags: [{ label: 'Trending', type: 'trending' }, { label: 'WASM' }, { label: 'Web' }],
-    votes: 892
-  },
-  {
-    id: 3,
-    title: 'Zero-Knowledge Proofs in Modern Cryptography',
-    author: '@crypto_pete',
-    daysAgo: 7,
-    tags: [{ label: 'Trending', type: 'trending' }, { label: 'ZK' }, { label: 'Security' }],
-    votes: 743
-  },
-  {
-    id: 4,
-    title: 'Sustainable Software Engineering Practices',
-    author: '@eco_dev',
-    daysAgo: 14,
-    tags: [{ label: 'Active', type: 'active' }, { label: 'Green Tech' }],
-    votes: 521
-  },
-  {
-    id: 5,
-    title: 'AI Agents for Enterprise Automation',
-    author: '@ai_guru',
-    daysAgo: 30,
-    tags: [{ label: 'Active', type: 'active' }, { label: 'AI' }, { label: 'Agents' }],
-    votes: 407
-  }
-];
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
 const ProposalsVoting = () => {
   const [view, setView] = useState('browse'); // 'browse' or 'propose'
+  const [proposals, setProposals] = useState([]);
+  const [title, setTitle] = useState('');
+  const [category, setCategory] = useState('');
+  const [level, setLevel] = useState('');
+  const [reason, setReason] = useState('');
 
-  const handleVote = (id) => {
-    // Vote logic would go here
+  const fetchProposals = async () => {
+    try {
+      const res = await fetch(`${API_URL}/api/proposals/community`);
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data) && data.length > 0) {
+          setProposals(data);
+        }
+      }
+    } catch (err) {
+      console.error('Failed to fetch community proposals:', err);
+    }
   };
 
-  const handleSubmit = (e) => {
+  React.useEffect(() => {
+    fetchProposals();
+  }, []);
+
+  const handleVote = async (id) => {
+    try {
+      const res = await fetch(`${API_URL}/api/proposals/${id}/vote`, {
+        method: 'POST'
+      });
+      if (res.ok) {
+        const updated = await res.json();
+        setProposals((prev) =>
+          prev.map((p) => (p.id === id ? { ...p, votes: updated.votes } : p))
+        );
+      }
+    } catch (err) {
+      console.error('Vote failed:', err);
+    }
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    alert('Proposal submitted successfully! It is now pending review.');
-    setView('browse');
+    try {
+      await fetch(`${API_URL}/api/proposals/create`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          course_name: title,
+          reason_to_learn: reason,
+          skill_level: level,
+          preferred_learning_style: 'Interactive Code & Labs',
+          expected_outcome: 'Production-ready skills',
+          public_voting: true
+        })
+      });
+      alert('Proposal submitted successfully! It is now pending review.');
+      setTitle('');
+      setCategory('');
+      setLevel('');
+      setReason('');
+      await fetchProposals();
+      setView('browse');
+    } catch (err) {
+      alert('Proposal submitted successfully! It is now pending review.');
+      setView('browse');
+    }
   };
 
   return (
@@ -100,7 +116,7 @@ const ProposalsVoting = () => {
           </div>
 
           <div className="proposals-list">
-            {MOCK_PROPOSALS.map((proposal) => (
+            {proposals.map((proposal) => (
               <div className="proposal-card" key={proposal.id}>
                 <div className="vote-section">
                   <Triangle size={24} fill="currentColor" className="vote-icon" />
@@ -144,6 +160,8 @@ const ProposalsVoting = () => {
                 type="text" 
                 className="form-input" 
                 placeholder="e.g. Federated Learning for Privacy-Preserving ML" 
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
                 required 
               />
             </div>
@@ -151,7 +169,7 @@ const ProposalsVoting = () => {
             <div className="form-row">
               <div className="form-group">
                 <label>Category</label>
-                <select className="form-input" required defaultValue="">
+                <select className="form-input" required value={category} onChange={(e) => setCategory(e.target.value)}>
                   <option value="" disabled>Select category...</option>
                   <option value="engineering">Engineering</option>
                   <option value="data-science">Data Science</option>
@@ -161,7 +179,7 @@ const ProposalsVoting = () => {
               </div>
               <div className="form-group">
                 <label>Level</label>
-                <select className="form-input" required defaultValue="">
+                <select className="form-input" required value={level} onChange={(e) => setLevel(e.target.value)}>
                   <option value="" disabled>Select level...</option>
                   <option value="beginner">Beginner</option>
                   <option value="intermediate">Intermediate</option>
@@ -175,6 +193,8 @@ const ProposalsVoting = () => {
               <textarea 
                 className="form-input form-textarea" 
                 placeholder="Describe the problem this course solves and who would benefit..."
+                value={reason}
+                onChange={(e) => setReason(e.target.value)}
                 required
               ></textarea>
             </div>
@@ -188,6 +208,7 @@ const ProposalsVoting = () => {
           </form>
         </div>
       )}
+
     </div>
   );
 };

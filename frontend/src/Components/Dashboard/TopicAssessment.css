@@ -1,0 +1,221 @@
+/* TopicAssessment.css - Clean website-matched styling */
+.topic-assessment-container {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  color: #1e293b;
+  animation: fadeIn 0.25s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Hero Section Gradients - Website Royal Blue & Navy */
+.assessment-hero-gradient {
+  background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #2563eb 100%);
+  color: #ffffff;
+  position: relative;
+  overflow: hidden;
+}
+
+.assessment-hero-gradient::after {
+  content: '';
+  position: absolute;
+  top: -40%;
+  right: -10%;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.25) 0%, rgba(0, 0, 0, 0) 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+/* Topic Suggestion Cards */
+.topic-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+}
+
+.topic-card:hover {
+  transform: translateY(-2px);
+  border-color: #3b82f6;
+  box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.1);
+  background: #eff6ff;
+}
+
+.topic-card:hover .topic-icon-wrap {
+  background: #2563eb;
+  color: #ffffff;
+  transform: scale(1.05);
+}
+
+.topic-icon-wrap {
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 10px;
+  background: #eff6ff;
+  color: #2563eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+/* Option Cards for Quiz Taking */
+.quiz-option-card {
+  background: #ffffff;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1.125rem 1.5rem;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.quiz-option-card:hover {
+  border-color: #cbd5e1;
+  background: #f8fafc;
+  transform: translateX(4px);
+}
+
+.quiz-option-card.selected {
+  border-color: #2563eb;
+  background: #eff6ff;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1);
+}
+
+.quiz-option-card.selected .option-badge {
+  background: #2563eb;
+  color: #ffffff;
+  border-color: #2563eb;
+}
+
+.option-badge {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 8px;
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  color: #475569;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+/* Question Pagination Dots */
+.q-dot {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  color: #64748b;
+  cursor: pointer;
+}
+
+.q-dot:hover {
+  border-color: #94a3b8;
+}
+
+.q-dot.answered {
+  background: #dbeafe;
+  border-color: #60a5fa;
+  color: #1e40af;
+}
+
+.q-dot.current {
+  background: #2563eb;
+  border-color: #2563eb;
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+  transform: scale(1.08);
+}
+
+/* Report Review Cards */
+.review-question-card {
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.review-question-card:hover {
+  box-shadow: 0 8px 20px -6px rgba(0, 0, 0, 0.05);
+}
+
+.review-question-card.status-correct {
+  border-left: 6px solid #10b981;
+}
+
+.review-question-card.status-incorrect {
+  border-left: 6px solid #ef4444;
+}
+
+.explanation-callout {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+}
+
+/* Score Gauge Animation */
+.score-pulse {
+  animation: scalePulse 2s infinite ease-in-out;
+}
+
+@keyframes scalePulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+}
+
+/* Floating AI Proctor Camera Dock */
+.proctor-camera-dock {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 280px;
+  background: #0f172a;
+  border: 2px solid #3b82f6;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.5);
+  z-index: 40;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+}
+
+.proctor-camera-dock.minimized {
+  width: 180px;
+}
+
+@media (max-width: 640px) {
+  .proctor-camera-dock {
+    bottom: 12px;
+    right: 12px;
+    width: 220px;
+  }
+  .proctor-camera-dock.minimized {
+    width: 140px;
+  }
+}
+

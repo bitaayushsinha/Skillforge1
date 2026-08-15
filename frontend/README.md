@@ -1,70 +1,73 @@
-# Getting Started with Create React App
+# 🚀 SkillForge LMS — Frontend Application
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+![React](https://img.shields.io/badge/React-18-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+![Vanilla CSS](https://img.shields.io/badge/Styling-Vanilla%20CSS-1572B6?style=for-the-badge&logo=css3&logoColor=white)
+![React Router](https://img.shields.io/badge/Routing-Custom%20SPA-CA4245?style=for-the-badge&logo=react-router&logoColor=white)
 
-## Available Scripts
+This directory contains the client-side Single Page Application (SPA) for **SkillForge LMS**, an AI-powered Learning Management System and Community Marketplace.
 
-In the project directory, you can run:
+---
 
-### `npm start`
+## ✨ Overview of Frontend Architecture
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+The SkillForge frontend is built with **React 18** and custom modern **Vanilla CSS**, featuring a responsive design, sleek glassmorphism components, vibrant dark mode styling, and dynamic micro-animations.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### Key UI Components & Dashboards (`src/Components/`)
+*   **👨‍🎓 Learner Portal**:
+    *   **Marketplace (`Marketplace.js`)**: Discover courses, filter by category, search keywords, and simulate cart purchases.
+    *   **My Learning (`MyLearning.js`)**: Track daily streaks, monitor weekly goal progress, view enrolled courses, and take interactive quizzes.
+    *   **Certifications (`Certifications.js` & `VerifyCertificate.js`)**: View earned cryptographic certificates, download/scan QR codes, and publicly verify certificate validity.
+    *   **AI Tutor (`AIAssistant.js`)**: Real-time conversational AI chatbot interface powered by Groq LLMs.
+*   **🌐 Community Hub (`CommunityVoting.js` & `CourseProposalModal.js`)**:
+    *   Submit new course ideas.
+    *   Real-time Upvoting, Downvoting, and sorting by *Newest*, *Most Voted*, *Most Discussed*, and *Trending*.
+    *   Threaded commenting with likes and nested replies.
+*   **🧑‍🏫 Expert Dashboard (`ExpertPanel.js`)**:
+    *   Create and manage course curriculums.
+    *   Upload rich media materials (video lectures, PDF handouts, diagrams, syllabus outlines).
+*   **🕵️ Review Center (`ReviewCenter.js`)**:
+    *   Dedicated portal for Reviewers to evaluate community course proposals.
+    *   Approve or reject ideas with structured feedback and rejection reasons.
+*   **⚙️ Admin Console (`AdminPanel.js`)**:
+    *   System-wide user role management (promote/demote Learners, Experts, Reviewers, Admins).
+    *   Platform governance and course moderation.
 
-### `npm test`
+---
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## 🛠️ Getting Started
 
-### `npm run build`
+### Prerequisites
+*   **Node.js v18+** and **npm**
+*   The **FastAPI backend** running locally at `http://localhost:8000` (see root `README.md` for backend instructions).
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### 1. Install Dependencies
+In this directory (`/frontend`), install all required npm packages:
+```powershell
+npm install
+```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### 2. Configure Environment Variables
+Create or verify the `.env` file in the `frontend/` folder:
+```ini
+REACT_APP_API_URL=http://localhost:8000
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### 3. Start Development Server
+```powershell
+npm start
+```
+Runs the app in development mode at **[http://localhost:3000](http://localhost:3000)**. The page will reload when you make edits.
 
-### `npm run eject`
+---
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## 📦 Build for Production
+To build the app for production deployment:
+```powershell
+npm run build
+```
+This correctly bundles React in production mode and optimizes the build for the best performance into the `build/` folder.
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+---
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+## 🔗 For Full Platform Details
+Please refer to the main repository root documentation: [c:\Users\user\Desktop\skillforge\README.md](file:///c:/Users/user/Desktop/skillforge/README.md).

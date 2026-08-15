@@ -8,7 +8,9 @@ from sqlalchemy.orm import Session
 from database import get_db
 import models
 
-SECRET_KEY = os.getenv("JWT_SECRET_KEY", "super-secret-key-for-dev")
+SECRET_KEY = os.getenv("JWT_SECRET_KEY")
+if not SECRET_KEY:
+    raise RuntimeError("JWT_SECRET_KEY environment variable is not set")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7 # 1 week
 
@@ -138,4 +140,108 @@ def verifyExpertRole(token: str = Depends(oauth2_scheme), db: Session = Depends(
         raise access_denied_exception
         
     return user
+
+def verifySubAdminOrAdmin(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+    user = get_current_user(token, db)
+    if user.role not in ["admin", "sub_admin"]:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Access Denied: Admin or Sub-Admin role required"
+        )
+    return user
+
+def require_privilege(privilege_key: str):
+    def privilege_checker(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+        user = get_current_user(token, db)
+        if user.role == "admin":
+            return user  # Main Admin has unrestricted access
+        if user.role != "sub_admin":
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"Access Denied: Role 'admin' or 'sub_admin' with '{privilege_key}' privilege required."
+            )
+        priv = db.query(models.SubAdminPrivilege).filter(models.SubAdminPrivilege.user_id == user.id).first()
+        if not priv or not getattr(priv, privilege_key, False):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"Access Denied: Sub-admin lacks required privilege '{privilege_key}'."
+            )
+        return user
+    return privilege_checker
+
+def require_any_privilege(*privilege_keys: str):
+    def privilege_checker(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+        user = get_current_user(token, db)
+        if user.role == "admin":
+            return user
+        if user.role != "sub_admin":
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"Access Denied: Requires one of privileges: {privilege_keys}"
+            )
+        priv = db.query(models.SubAdminPrivilege).filter(models.SubAdminPrivilege.user_id == user.id).first()
+        if not priv or not any(getattr(priv, key, False) for key in privilege_keys):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"Access Denied: Lacks any of required privileges {privilege_keys}."
+            )
+        return user
+    return privilege_checker
+
+def require_all_privileges(*privilege_keys: str):
+    def privilege_checker(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+        user = get_current_user(token, db)
+        if user.role == "admin":
+            return user
+        if user.role != "sub_admin":
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"Access Denied: Requires all privileges: {privilege_keys}"
+            )
+        priv = db.query(models.SubAdminPrivilege).filter(models.SubAdminPrivilege.user_id == user.id).first()
+        if not priv or not all(getattr(priv, key, False) for key in privilege_keys):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"Access Denied: Lacks all required privileges {privilege_keys}."
+            )
+        return user
+    return privilege_checker
+
+def get_subadmin_allowed_institution_ids(user: models.User, db: Session) -> Optional[list]:
+    if user.role == "admin":
+        return None  # None indicates unrestricted access across all institutions
+    if user.role == "sub_admin":
+        accesses = db.query(models.SubAdminInstitutionAccess).filter(models.SubAdminInstitutionAccess.subadmin_id == user.id).all()
+        if not accesses:
+            return None  # If no explicit institution scoping is set, sub-admin is unrestricted across institutions
+        return [a.institution_id for a in accesses]
+    return []  # Empty list indicates no access to admin institution data
+
+def verify_institution_access(user: models.User, institution_id: int, db: Session) -> bool:
+    if user.role == "admin":
+        return True
+    allowed_ids = get_subadmin_allowed_institution_ids(user, db)
+    if allowed_ids is None:
+        return True
+    if institution_id in allowed_ids:
+        return True
+    raise HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail="Access Denied: Institution is outside your assigned administrative scope."
+    )
+
+def verify_institution_code_access(user: models.User, code_or_name: str, db: Session) -> models.Institution:
+    inst = db.query(models.Institution).filter(
+        (models.Institution.code == code_or_name) | (models.Institution.name == code_or_name)
+    ).first()
+    if not inst:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Institution '{code_or_name}' not found."
+        )
+    verify_institution_access(user, inst.id, db)
+    return inst
+
+
+
 

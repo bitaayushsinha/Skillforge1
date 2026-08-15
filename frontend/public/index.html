@@ -24,7 +24,68 @@
       work correctly both with client-side routing and a non-root public URL.
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
-    <title>React App</title>
+    <title>SkillForge</title>
+    <!-- Fonts: Inter for modern, clean look -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet">
+    <!-- Tailwind CSS (CDN for immediate usage) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Razorpay Checkout -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <!-- Tailwind Config for specific project colors -->
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              navy: {
+                DEFAULT: '#0B3D91',
+                50: '#F0F4FA',
+                100: '#E1E8F5',
+                800: '#082A66',
+                900: '#051D47',
+              },
+              coral: {
+                DEFAULT: '#E94E4E',
+                hover: '#D63D3D'
+              }
+            },
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+            },
+            fontSize: {
+              'xs': '0.8rem',
+              'sm': '0.925rem',
+              'base': '1.05rem',
+              'lg': '1.175rem',
+              'xl': '1.35rem',
+              '2xl': '1.6rem',
+              '3xl': '2rem',
+              '4xl': '2.5rem',
+              '5xl': '3.25rem',
+              '6xl': '4rem',
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      /* Custom Utilities not in Tailwind */
+      body { font-feature-settings: "cv11", "ss01"; }
+      .no-scrollbar::-webkit-scrollbar { display: none; }
+      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      /* Loader Animation */
+      .spinner {
+        border: 3px solid rgba(255,255,255,0.3);
+        border-radius: 50%;
+        border-top: 3px solid #ffffff;
+        width: 24px;
+        height: 24px;
+        animation: spin 1s linear infinite;
+      }
+      @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>

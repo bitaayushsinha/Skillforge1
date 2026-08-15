@@ -239,3 +239,4 @@ frontend/build/
 
 # Render/Vercel local configs
 .render/
+backend/uploads/

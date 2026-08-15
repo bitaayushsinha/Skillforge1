@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Heart, Reply, Clock } from 'lucide-react';
-import './CommentsSection.css';
 
 const Comment = ({ comment, allComments, onReply, onLike }) => {
   const [showReplyForm, setShowReplyForm] = useState(false);
@@ -26,45 +25,56 @@ const Comment = ({ comment, allComments, onReply, onLike }) => {
   };
 
   return (
-    <div className="comment-thread">
-      <div className="comment-node">
+    <div className="mb-6 last:mb-0">
+      <div className="flex gap-4">
         <img 
           src={comment.user_image || `https://ui-avatars.com/api/?name=${encodeURIComponent(comment.user_name)}&background=random`} 
           alt="avatar" 
-          className="comment-avatar"
+          className="w-10 h-10 rounded-full shrink-0 border border-slate-200"
         />
-        <div className="comment-body">
-          <div className="comment-header">
-            <span className="comment-author">{comment.user_name}</span>
-            <span className="comment-time"><Clock size={12}/> {formatDate(comment.created_at)}</span>
+        <div className="flex-1">
+          <div className="flex items-center gap-3 mb-1">
+            <span className="text-sm font-bold text-navy-900">{comment.user_name}</span>
+            <span className="flex items-center gap-1 text-xs text-slate-400 font-medium">
+              <Clock size={12}/> {formatDate(comment.created_at)}
+            </span>
           </div>
-          <p className="comment-content">{comment.content}</p>
-          <div className="comment-actions">
-            <button className="c-btn" onClick={() => onLike(comment.id)}>
-              <Heart size={14} /> {comment.likes}
+          
+          <p className="text-sm text-slate-700 leading-relaxed mb-3">{comment.content}</p>
+          
+          <div className="flex items-center gap-4">
+            <button className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-coral transition-colors" onClick={() => onLike(comment.id)}>
+              <Heart size={14} className={comment.likes > 0 ? "text-coral fill-coral/20" : ""} /> {comment.likes}
             </button>
-            <button className="c-btn" onClick={() => setShowReplyForm(!showReplyForm)}>
+            <button className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-navy-900 transition-colors" onClick={() => setShowReplyForm(!showReplyForm)}>
               <Reply size={14} /> Reply
             </button>
           </div>
           
           {showReplyForm && (
-            <form onSubmit={handleReplySubmit} className="reply-form">
+            <form onSubmit={handleReplySubmit} className="flex gap-3 mt-4">
               <input 
                 type="text" 
                 placeholder="Write a reply..." 
                 value={replyText}
                 onChange={(e) => setReplyText(e.target.value)}
+                className="flex-1 px-4 py-2 border border-slate-200 rounded-xl bg-slate-50 text-sm focus:outline-none focus:ring-2 focus:ring-navy/20 focus:border-navy focus:bg-white transition-all shadow-inner"
                 autoFocus
               />
-              <button type="submit" disabled={!replyText.trim()}>Post</button>
+              <button 
+                type="submit" 
+                disabled={!replyText.trim()}
+                className="px-5 py-2 bg-navy hover:bg-navy-800 text-white font-semibold text-sm rounded-xl disabled:opacity-50 transition-colors shadow-sm"
+              >
+                Post
+              </button>
             </form>
           )}
         </div>
       </div>
       
       {replies.length > 0 && (
-        <div className="comment-children">
+        <div className="pl-6 md:pl-10 ml-5 mt-6 border-l-2 border-slate-100 space-y-6">
           {replies.map(r => (
             <Comment 
               key={r.id} 
@@ -143,38 +153,49 @@ const CommentsSection = ({ proposalId }) => {
   const rootComments = comments.filter(c => !c.parent_comment_id);
 
   return (
-    <div className="comments-section">
+    <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 shadow-inner">
       <form 
-        className="main-comment-form" 
+        className="flex gap-4 mb-8" 
         onSubmit={(e) => { e.preventDefault(); if (newComment.trim()) { handlePost(null, newComment); setNewComment(''); } }}
       >
         <img 
           src={`https://ui-avatars.com/api/?name=Me&background=e2e8f0`} 
           alt="me" 
-          className="comment-avatar"
+          className="w-10 h-10 rounded-full shrink-0 border border-slate-200"
         />
         <input 
           type="text" 
           placeholder="Add a public comment..." 
           value={newComment}
           onChange={(e) => setNewComment(e.target.value)}
+          className="flex-1 px-5 py-3 border border-slate-200 rounded-xl bg-white text-sm focus:outline-none focus:ring-2 focus:ring-navy/20 focus:border-navy transition-all shadow-sm"
         />
-        <button type="submit" disabled={!newComment.trim()}>Post</button>
+        <button 
+          type="submit" 
+          disabled={!newComment.trim()}
+          className="px-6 py-3 bg-navy hover:bg-navy-800 text-white font-semibold text-sm rounded-xl disabled:opacity-50 transition-colors shadow-sm"
+        >
+          Post
+        </button>
       </form>
 
       {loading ? (
-        <div className="c-loading">Loading comments...</div>
+        <div className="py-6 text-center text-slate-400 text-sm font-semibold">Loading comments...</div>
       ) : (
-        <div className="comments-list">
-          {rootComments.map(c => (
-            <Comment 
-              key={c.id} 
-              comment={c} 
-              allComments={comments} 
-              onReply={handlePost} 
-              onLike={handleLike} 
-            />
-          ))}
+        <div className="space-y-6">
+          {rootComments.length === 0 ? (
+            <div className="text-center text-slate-400 text-sm font-medium py-4">No comments yet. Be the first to start the discussion!</div>
+          ) : (
+            rootComments.map(c => (
+              <Comment 
+                key={c.id} 
+                comment={c} 
+                allComments={comments} 
+                onReply={handlePost} 
+                onLike={handleLike} 
+              />
+            ))
+          )}
         </div>
       )}
     </div>

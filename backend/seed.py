@@ -1,7 +1,8 @@
 import logging
 import hashlib
 from database import SessionLocal, engine, Base
-from models import Course, Expert, Stat, User
+from models import Course, Expert, Stat, User, Institution, Specialization, Subject, StudentRegistration, CourseProposal, CertificateIssue
+from datetime import datetime, timezone, timedelta
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -15,6 +16,12 @@ def seed_db():
     try:
         # Clear existing data to avoid duplicates
         logger.info("Cleaning up existing records...")
+        db.query(CertificateIssue).delete()
+        db.query(CourseProposal).delete()
+        db.query(StudentRegistration).delete()
+        db.query(Subject).delete()
+        db.query(Specialization).delete()
+        db.query(Institution).delete()
         db.query(User).delete()
         db.query(Course).delete()
         db.query(Expert).delete()
@@ -182,7 +189,125 @@ def seed_db():
             )
         ]
         db.add_all(courses)
-        
+        db.commit()
+
+        # 4. Seed Institutions
+        logger.info("Seeding institutions...")
+        institutions = [
+            Institution(name="Stanford University", code="STANFORD", address="Stanford, CA", contact_email="admin@stanford.edu"),
+            Institution(name="MIT", code="MIT", address="Cambridge, MA", contact_email="admin@mit.edu"),
+            Institution(name="Indian Institute of Technology Delhi", code="IITD", address="New Delhi, India", contact_email="contact@iitd.ac.in")
+        ]
+        db.add_all(institutions)
+
+        # 5. Seed Specializations & Subjects
+        logger.info("Seeding specializations and subjects...")
+        spec1 = Specialization(name="AI & Machine Learning", code="AIML", description="Advanced Artificial Intelligence and Deep Learning curriculum")
+        spec2 = Specialization(name="Cloud Native DevOps", code="DEVOPS", description="Distributed Systems & Cloud Orchestration")
+        db.add_all([spec1, spec2])
+        db.commit()
+
+        subj1 = Subject(specialization_id=spec1.id, name="Federated Learning & Edge AI", code="AIML-301", semester_tier="District")
+        subj2 = Subject(specialization_id=spec1.id, name="Generative AI Systems Architecture", code="AIML-401", semester_tier="State")
+        db.add_all([subj1, subj2])
+
+        # 6. Seed Course Proposals
+        logger.info("Seeding community proposals...")
+        proposals = [
+            CourseProposal(
+                course_name="Federated Learning for Privacy-Preserving ML",
+                reason_to_learn="High demand in healthcare and banking for distributed training.",
+                skill_level="Advanced",
+                preferred_learning_style="Interactive Code & Labs",
+                expected_outcome="Build federated pipelines",
+                public_voting=True,
+                status="pending",
+                ai_category="AI/ML",
+                learner_name="alex_dev",
+                upvotes=412
+            ),
+            CourseProposal(
+                course_name="Rust for High-Performance Systems & WASM",
+                reason_to_learn="Replace C++ memory leaks with memory safety.",
+                skill_level="Intermediate",
+                preferred_learning_style="Hands-on Projects",
+                expected_outcome="Write production WASM modules",
+                public_voting=True,
+                status="pending",
+                ai_category="Systems",
+                learner_name="rustacean_pro",
+                upvotes=328
+            )
+        ]
+        db.add_all(proposals)
+
+        # 7. Seed Certificate Issues
+        logger.info("Seeding review center certificate issues...")
+        issues = [
+            CertificateIssue(
+                learner_name="Alex Learner",
+                learner_email="learner@skillforge.com",
+                course_name="Advanced Neural Networks with PyTorch & Lightning",
+                issue_description="Certificate name has incorrect spelling on PDF generated export.",
+                status="open"
+            )
+        ]
+        db.add_all(issues)
+
+        # 8. Seed Specializations, Subjects & Learner Registration
+        logger.info("Seeding Specialization, Subjects & Student Registration...")
+        spec = Specialization(
+            name="Artificial Intelligence & Autonomous Systems",
+            code="AI-AS-2026",
+            description="Full-stack AI, systems programming, and autonomous engineering specialization.",
+            is_active=True
+        )
+        db.add(spec)
+        db.commit()
+        db.refresh(spec)
+
+        subjects = [
+            Subject(
+                specialization_id=spec.id,
+                name="Artificial Intelligence & Machine Learning Core",
+                code="AI-401",
+                description="Foundational and advanced neural architectures, deep reinforcement learning, and production PyTorch systems.",
+                semester_tier="District",
+                ai_mock_exams_enabled=True
+            ),
+            Subject(
+                specialization_id=spec.id,
+                name="Distributed Cloud Architecture & Kubernetes",
+                code="CS-502",
+                description="Enterprise microservices design, high-availability cluster orchestration, and service mesh networking.",
+                semester_tier="State",
+                ai_mock_exams_enabled=True
+            ),
+            Subject(
+                specialization_id=spec.id,
+                name="Autonomous Systems & Advanced Robotics",
+                code="ROB-601",
+                description="National Level capstone covering real-time sensor fusion, ROS2 architecture, and autonomous navigation.",
+                semester_tier="National",
+                ai_mock_exams_enabled=True
+            )
+        ]
+        db.add_all(subjects)
+
+        learner_u = db.query(User).filter(User.email == "learner@skillforge.com").first()
+        inst_u = db.query(Institution).first()
+        if learner_u and inst_u:
+            reg = StudentRegistration(
+                user_id=learner_u.id,
+                institution_id=inst_u.id,
+                specialization_id=spec.id,
+                registration_number="SF-2026-001",
+                batch_name="2026-A",
+                access_status="active",
+                current_tier="District"
+            )
+            db.add(reg)
+
         db.commit()
         logger.info("Successfully seeded database with sample data!")
     except Exception as e:
@@ -193,3 +318,4 @@ def seed_db():
 
 if __name__ == "__main__":
     seed_db()
+

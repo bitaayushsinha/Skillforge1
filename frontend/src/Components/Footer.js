@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
 import { Mail, Send, CheckCircle } from 'lucide-react';
 import { PrivacyModal, TermsModal } from './LegalModals';
+import { BRANDING } from '../config/branding';
 
-export default function Footer() {
+export default function Footer({ setActivePage }) {
   const [email, setEmail] = useState('');
   const [subscribed, setSubscribed] = useState(false);
   const [error, setError] = useState('');
   const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
   const [isTermsOpen, setIsTermsOpen] = useState(false);
 
-  const handleSubscribe = (e) => {
+  const handleSubscribe = async (e) => {
     e.preventDefault();
     setError('');
 
@@ -18,14 +19,27 @@ export default function Footer() {
       return;
     }
 
-    setSubscribed(true);
-    setEmail('');
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:8000'}/api/subscribe`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+      if (response.ok) {
+        setSubscribed(true);
+        setEmail('');
+      } else {
+        setError('Failed to subscribe. Please try again later.');
+      }
+    } catch (err) {
+      setError('Network error. Please try again later.');
+    }
   };
 
   return (
     <footer style={styles.footer}>
       <div className="container" style={styles.container}>
-        <div style={styles.grid}>
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-[2fr_1fr_2fr] gap-12">
           {/* Brand Column */}
           <div style={styles.brandCol}>
             <div style={styles.logoRow}>
@@ -33,7 +47,7 @@ export default function Footer() {
                 <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" fill="#2563EB" />
                 <path d="M12 17C14.7614 17 17 14.7614 17 12C17 9.23858 14.7614 7 12 7C9.23858 7 7 9.23858 7 12C7 14.7614 9.23858 17 12 17Z" fill="#60A5FA" />
               </svg>
-              <span style={styles.logoText}>SkillForge</span>
+              <span style={styles.logoText}>{BRANDING.HEADER_LOGO_TEXT}</span>
             </div>
             <p style={styles.brandDesc}>
               Combining AI curriculum planning with domain expert validation to teach the skills that actually matter in industry.
@@ -55,23 +69,18 @@ export default function Footer() {
           <div style={styles.linksCol}>
             <h4 style={styles.colTitle}>Product</h4>
             <ul style={styles.linkList}>
-              <li><a href="#courses" style={styles.link}>Courses Catalog</a></li>
-              <li><a href="#teams" style={styles.link}>For Teams</a></li>
-              <li><a href="#pricing" style={styles.link}>Pricing Plans</a></li>
-              <li><a href="#enterprise" style={styles.link}>Enterprise</a></li>
+              <li>
+                <a href="#" onClick={(e) => { e.preventDefault(); if(setActivePage) setActivePage('home'); window.scrollTo(0,0); }} style={styles.link}>
+                  Home
+                </a>
+              </li>
+              <li><a href="#courses" onClick={(e) => { if(setActivePage) { e.preventDefault(); setActivePage('home'); setTimeout(()=>window.location.hash='#courses', 100); } }} style={styles.link}>Courses Catalog</a></li>
+              <li><a href="#faq" onClick={(e) => { e.preventDefault(); if(setActivePage) setActivePage('faq'); window.scrollTo(0,0); }} style={styles.link}>FAQ</a></li>
+              <li><a href="#feedback" onClick={(e) => { e.preventDefault(); if(setActivePage) setActivePage('feedback'); window.scrollTo(0,0); }} style={styles.link}>Feedback</a></li>
             </ul>
           </div>
 
-          {/* Resources Links */}
-          <div style={styles.linksCol}>
-            <h4 style={styles.colTitle}>Resources</h4>
-            <ul style={styles.linkList}>
-              <li><a href="#docs" style={styles.link}>API & Docs</a></li>
-              <li><a href="#experts" style={styles.link}>Experts Board</a></li>
-              <li><a href="#careers" style={styles.link}>Careers</a></li>
-              <li><a href="#help" style={styles.link}>Help Center</a></li>
-            </ul>
-          </div>
+
 
           {/* Subscription Form */}
           <div style={styles.subscribeCol}>
@@ -107,7 +116,9 @@ export default function Footer() {
 
         {/* Bottom Banner */}
         <div style={styles.bottomBanner}>
-          <p style={styles.copyright}>© 2026 SkillForge LMS. All rights reserved.</p>
+          <p style={styles.copyright}>
+            {BRANDING.FOOTER_TEXT} | Powered by <a href="https://datavex.ai/" target="_blank" rel="noreferrer" style={{ color: 'inherit', textDecoration: 'underline' }} onMouseOver={(e) => e.target.style.color = '#fff'} onMouseOut={(e) => e.target.style.color = 'inherit'}>DataVex</a>
+          </p>
           <div style={styles.bottomLinks}>
             <button
               onClick={() => setIsPrivacyOpen(true)}
@@ -133,19 +144,14 @@ export default function Footer() {
 
 const styles = {
   footer: {
-    backgroundColor: '#1d55bc5f',
-    borderTop: '1px solid rgba(0, 0, 0, 0.08)',
+    backgroundColor: '#0a0a0a',
+    borderTop: '1px solid rgba(255, 255, 255, 0.1)',
     padding: '5rem 0 3rem 0',
   },
   container: {
     display: 'flex',
     flexDirection: 'column',
     gap: '4rem',
-  },
-  grid: {
-    display: 'grid',
-    gridTemplateColumns: '2fr 1fr 1fr 2fr',
-    gap: '3rem',
   },
   brandCol: {
     display: 'flex',
@@ -161,11 +167,11 @@ const styles = {
     fontFamily: 'var(--font-heading)',
     fontSize: '1.2rem',
     fontWeight: '800',
-    color: '#0f172a',
+    color: '#ffffff',
   },
   brandDesc: {
     fontSize: '0.875rem',
-    color: 'var(--text-secondary)',
+    color: '#a1a1aa',
     lineHeight: '1.6',
     maxWidth: '300px',
   },
@@ -175,15 +181,15 @@ const styles = {
     marginTop: '0.5rem',
   },
   socialIcon: {
-    color: 'var(--text-secondary)',
+    color: '#a1a1aa',
     transition: 'color var(--transition-fast)',
     display: 'inline-flex',
     alignItems: 'center',
     justifyContent: 'center',
     padding: '0.5rem',
-    backgroundColor: 'rgba(255, 255, 255, 0.02)',
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
     borderRadius: '50%',
-    border: '1px solid var(--border-color)',
+    border: '1px solid rgba(255, 255, 255, 0.1)',
     cursor: 'pointer',
     ':hover': {
       color: '#fff',
@@ -197,7 +203,7 @@ const styles = {
   colTitle: {
     fontSize: '0.9rem',
     fontWeight: '600',
-    color: '#0f172a',
+    color: '#ffffff',
     textTransform: 'uppercase',
     letterSpacing: '0.05em',
   },
@@ -208,7 +214,7 @@ const styles = {
     gap: '0.75rem',
   },
   link: {
-    color: 'var(--text-secondary)',
+    color: '#a1a1aa',
     textDecoration: 'none',
     fontSize: '0.875rem',
     transition: 'color var(--transition-fast)',
@@ -224,7 +230,7 @@ const styles = {
   },
   subscribeDesc: {
     fontSize: '0.875rem',
-    color: 'var(--text-secondary)',
+    color: '#a1a1aa',
     lineHeight: '1.5',
     maxWidth: '300px',
   },
@@ -289,14 +295,14 @@ const styles = {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    borderTop: '1px solid rgba(0, 0, 0, 0.08)',
+    borderTop: '1px solid rgba(255, 255, 255, 0.1)',
     paddingTop: '2rem',
     flexWrap: 'wrap',
     gap: '1rem',
   },
   copyright: {
     fontSize: '0.8rem',
-    color: 'var(--text-muted)',
+    color: '#71717a',
   },
   bottomLinks: {
     display: 'flex',
@@ -304,7 +310,7 @@ const styles = {
   },
   bottomLink: {
     fontSize: '0.8rem',
-    color: 'var(--text-muted)',
+    color: '#71717a',
     textDecoration: 'none',
     transition: 'color var(--transition-fast)',
     ':hover': {
@@ -318,7 +324,7 @@ if (typeof document !== 'undefined') {
   const style = document.createElement('style');
   style.innerHTML = `
     footer a:hover {
-      color: #0f172a !important;
+      color: #ffffff !important;
     }
   `;
   document.head.appendChild(style);

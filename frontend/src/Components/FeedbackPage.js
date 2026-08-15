@@ -9,7 +9,7 @@ function StarRating({ value, onChange, size = 24, readOnly = false }) {
   const display = hovered || value;
 
   return (
-    <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+    <div className="flex gap-1 items-center">
       {[1, 2, 3, 4, 5].map((star) => (
         <button
           key={star}
@@ -18,20 +18,12 @@ function StarRating({ value, onChange, size = 24, readOnly = false }) {
           onClick={() => !readOnly && onChange && onChange(star)}
           onMouseEnter={() => !readOnly && setHovered(star)}
           onMouseLeave={() => !readOnly && setHovered(0)}
-          style={{
-            background: 'none',
-            border: 'none',
-            cursor: readOnly ? 'default' : 'pointer',
-            padding: '2px',
-            transition: 'transform 0.15s ease',
-            transform: !readOnly && hovered >= star ? 'scale(1.2)' : 'scale(1)',
-          }}
+          className={`bg-transparent border-none p-0.5 transition-transform duration-150 ${readOnly ? 'cursor-default' : 'cursor-pointer'} ${!readOnly && hovered >= star ? 'scale-125' : 'scale-100'}`}
           aria-label={`${star} star`}
         >
           <Star
             size={size}
-            fill={display >= star ? '#f59e0b' : 'none'}
-            color={display >= star ? '#f59e0b' : '#cbd5e1'}
+            className={`${display >= star ? 'fill-amber-500 text-amber-500' : 'fill-transparent text-slate-300'}`}
             strokeWidth={1.5}
           />
         </button>
@@ -44,19 +36,16 @@ function StarRating({ value, onChange, size = 24, readOnly = false }) {
 function RatingBar({ label, count, total }) {
   const pct = total > 0 ? (count / total) * 100 : 0;
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.8rem' }}>
-      <span style={{ color: 'var(--text-muted)', minWidth: '14px', textAlign: 'right' }}>{label}</span>
-      <Star size={12} fill="#f59e0b" color="#f59e0b" />
-      <div style={{ flex: 1, height: '8px', background: '#e2e8f0', borderRadius: '999px', overflow: 'hidden' }}>
-        <div style={{
-          height: '100%',
-          width: `${pct}%`,
-          background: 'linear-gradient(90deg, #f59e0b, #fbbf24)',
-          borderRadius: '999px',
-          transition: 'width 0.6s ease',
-        }} />
+    <div className="flex items-center gap-3 text-xs font-medium">
+      <span className="text-slate-500 min-w-[14px] text-right">{label}</span>
+      <Star size={12} className="fill-amber-500 text-amber-500" />
+      <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
+        <div 
+          className="h-full bg-amber-500 rounded-full transition-all duration-700" 
+          style={{ width: `${pct}%` }} 
+        />
       </div>
-      <span style={{ color: 'var(--text-muted)', minWidth: '24px' }}>{count}</span>
+      <span className="text-slate-500 min-w-[24px]">{count}</span>
     </div>
   );
 }
@@ -92,146 +81,57 @@ function FeedbackCard({ feedback, onHelpful }) {
     .toUpperCase()
     .slice(0, 2);
 
-  const avatarColor = `hsl(${(feedback.user_name.charCodeAt(0) * 31) % 360}, 55%, 50%)`;
+  const avatarColor = `hsl(${(feedback.user_name.charCodeAt(0) * 31) % 360}, 65%, 55%)`;
 
   const dateStr = new Date(feedback.created_at).toLocaleDateString('en-US', {
     month: 'short', day: 'numeric', year: 'numeric',
   });
 
   return (
-    <div style={cardStyles.wrapper} className="feedback-card">
-      <div style={cardStyles.header}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div style={{ ...cardStyles.avatar, background: avatarColor }}>
+    <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 flex flex-col group">
+      <div className="flex justify-between items-start mb-4 gap-2 flex-wrap">
+        <div className="flex items-center gap-3">
+          <div 
+            className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm shrink-0" 
+            style={{ backgroundColor: avatarColor }}
+          >
             {initials}
           </div>
           <div>
-            <div style={cardStyles.userName}>{feedback.user_name}</div>
-            <div style={cardStyles.date}>{dateStr}</div>
+            <div className="font-bold text-sm text-navy-900">{feedback.user_name}</div>
+            <div className="text-xs font-semibold text-slate-400 mt-0.5">{dateStr}</div>
           </div>
         </div>
         <StarRating value={feedback.rating} readOnly size={16} />
       </div>
 
       {feedback.title && (
-        <div style={cardStyles.title}>{feedback.title}</div>
+        <div className="font-bold text-base text-navy-900 mb-2 leading-tight">{feedback.title}</div>
       )}
-      <p style={cardStyles.comment}>{feedback.comment}</p>
+      <p className="text-sm text-slate-600 leading-relaxed mb-6 flex-1">
+        {feedback.comment}
+      </p>
 
-      <div style={cardStyles.footer}>
-        <span style={cardStyles.courseBadge}>{feedback.course_title || `Course #${feedback.course_id}`}</span>
+      <div className="flex justify-between items-center flex-wrap gap-2 pt-4 border-t border-slate-100">
+        <span className="inline-block px-3 py-1 bg-blue-50 text-blue-600 text-xs font-bold rounded-lg border border-blue-100 max-w-[200px] truncate">
+          {feedback.course_title || `Course #${feedback.course_id}`}
+        </span>
         <button
           onClick={handleHelpful}
           disabled={markedHelpful || loading}
-          style={{
-            ...cardStyles.helpfulBtn,
-            ...(markedHelpful ? cardStyles.helpfulBtnActive : {}),
-          }}
-          id={`helpful-btn-${feedback.id}`}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
+            markedHelpful 
+              ? 'bg-emerald-50 text-emerald-600 border border-emerald-200' 
+              : 'bg-slate-50 text-slate-500 hover:text-navy-900 border border-slate-200 hover:border-slate-300'
+          }`}
         >
-          <ThumbsUp size={13} />
+          <ThumbsUp size={14} className={markedHelpful ? 'fill-emerald-200' : ''} />
           {markedHelpful ? 'Helpful!' : 'Helpful'} · {helpfulCount}
         </button>
       </div>
     </div>
   );
 }
-
-const cardStyles = {
-  wrapper: {
-    background: 'rgba(255,255,255,0.78)',
-    border: '1px solid rgba(0,0,0,0.07)',
-    borderRadius: '16px',
-    padding: '20px 24px',
-    backdropFilter: 'blur(12px)',
-    WebkitBackdropFilter: 'blur(12px)',
-    transition: 'box-shadow 0.2s ease, transform 0.2s ease',
-    cursor: 'default',
-  },
-  header: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: '12px',
-    flexWrap: 'wrap',
-    gap: '8px',
-  },
-  avatar: {
-    width: '38px',
-    height: '38px',
-    borderRadius: '50%',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    color: '#fff',
-    fontWeight: '700',
-    fontSize: '0.85rem',
-    flexShrink: 0,
-  },
-  userName: {
-    fontWeight: '600',
-    fontSize: '0.9rem',
-    color: 'var(--text-primary)',
-  },
-  date: {
-    fontSize: '0.75rem',
-    color: 'var(--text-muted)',
-    marginTop: '2px',
-  },
-  title: {
-    fontFamily: 'var(--font-heading)',
-    fontWeight: '700',
-    fontSize: '1rem',
-    color: 'var(--text-primary)',
-    marginBottom: '6px',
-  },
-  comment: {
-    fontSize: '0.875rem',
-    color: 'var(--text-secondary)',
-    lineHeight: '1.65',
-    marginBottom: '14px',
-  },
-  footer: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    flexWrap: 'wrap',
-    gap: '8px',
-  },
-  courseBadge: {
-    display: 'inline-block',
-    padding: '3px 10px',
-    borderRadius: '999px',
-    background: 'rgba(37,99,235,0.08)',
-    color: 'var(--color-accent-blue)',
-    fontSize: '0.72rem',
-    fontWeight: '600',
-    border: '1px solid rgba(37,99,235,0.15)',
-    maxWidth: '200px',
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    whiteSpace: 'nowrap',
-  },
-  helpfulBtn: {
-    display: 'inline-flex',
-    alignItems: 'center',
-    gap: '5px',
-    padding: '4px 12px',
-    borderRadius: '999px',
-    border: '1px solid rgba(0,0,0,0.1)',
-    background: '#fff',
-    color: 'var(--text-muted)',
-    fontSize: '0.75rem',
-    fontWeight: '500',
-    cursor: 'pointer',
-    transition: 'all 0.2s ease',
-  },
-  helpfulBtnActive: {
-    background: 'rgba(34,197,94,0.08)',
-    borderColor: 'rgba(34,197,94,0.3)',
-    color: '#16a34a',
-  },
-};
 
 // ─── Write Feedback Modal ────────────────────────────────────────────────────
 function WriteFeedbackModal({ courses, user, onClose, onSubmit }) {
@@ -275,26 +175,32 @@ function WriteFeedbackModal({ courses, user, onClose, onSubmit }) {
   };
 
   return (
-    <div style={modalStyles.overlay} onClick={(e) => e.target === e.currentTarget && onClose()}>
-      <div style={modalStyles.modal} id="write-feedback-modal">
-        <div style={modalStyles.header}>
+    <div 
+      className="fixed inset-0 bg-navy-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-200"
+      onClick={(e) => e.target === e.currentTarget && onClose()}
+    >
+      <div className="bg-white rounded-3xl w-full max-w-lg max-h-[90vh] overflow-y-auto p-8 shadow-2xl animate-in slide-in-from-bottom-4 duration-300">
+        <div className="flex justify-between items-start mb-8 gap-3">
           <div>
-            <h2 style={modalStyles.title}>Share Your Experience</h2>
-            <p style={modalStyles.subtitle}>Help other learners by reviewing a course</p>
+            <h2 className="text-2xl font-bold text-navy-900 mb-1">Share Your Experience</h2>
+            <p className="text-sm font-semibold text-slate-500">Help other learners by reviewing a course</p>
           </div>
-          <button onClick={onClose} style={modalStyles.closeBtn} aria-label="Close"><X size={20} /></button>
+          <button 
+            onClick={onClose} 
+            className="w-10 h-10 bg-slate-100 hover:bg-slate-200 text-slate-500 rounded-full flex items-center justify-center transition-colors shrink-0"
+          >
+            <X size={20} />
+          </button>
         </div>
 
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
-          {/* Course Selector */}
-          <div style={modalStyles.field}>
-            <label style={modalStyles.label}>Course *</label>
-            <div style={{ position: 'relative' }}>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+          <div className="flex flex-col gap-2">
+            <label className="text-sm font-bold text-navy-900">Course *</label>
+            <div className="relative">
               <select
-                id="feedback-course-select"
                 value={courseId}
                 onChange={(e) => setCourseId(e.target.value)}
-                style={modalStyles.select}
+                className="w-full pl-4 pr-10 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-navy/20 focus:border-navy appearance-none cursor-pointer transition-all shadow-inner"
                 required
               >
                 <option value="">— Select a course —</option>
@@ -302,161 +208,71 @@ function WriteFeedbackModal({ courses, user, onClose, onSubmit }) {
                   <option key={c.id} value={c.id}>{c.title}</option>
                 ))}
               </select>
-              <ChevronDown size={16} style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', pointerEvents: 'none' }} />
+              <ChevronDown size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
             </div>
           </div>
 
-          {/* Star Rating */}
-          <div style={modalStyles.field}>
-            <label style={modalStyles.label}>Rating *</label>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div className="flex flex-col gap-2">
+            <label className="text-sm font-bold text-navy-900">Rating *</label>
+            <div className="flex items-center gap-4">
               <StarRating value={rating} onChange={setRating} size={32} />
               {rating > 0 && (
-                <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: '500' }}>
+                <span className="text-sm font-bold text-amber-500">
                   {['', 'Poor', 'Fair', 'Good', 'Great', 'Excellent!'][rating]}
                 </span>
               )}
             </div>
           </div>
 
-          {/* Title */}
-          <div style={modalStyles.field}>
-            <label style={modalStyles.label}>Review Title <span style={{ color: 'var(--text-muted)', fontWeight: '400' }}>(optional)</span></label>
+          <div className="flex flex-col gap-2">
+            <label className="text-sm font-bold text-navy-900">Review Title <span className="text-slate-400 font-medium text-xs">(optional)</span></label>
             <input
-              id="feedback-title-input"
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="e.g. Incredible deep-dive into the topic"
               maxLength={120}
-              className="form-input"
-              style={{ width: '100%' }}
+              className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-navy/20 focus:border-navy transition-all shadow-inner"
             />
           </div>
 
-          {/* Comment */}
-          <div style={modalStyles.field}>
-            <label style={modalStyles.label}>Your Review *</label>
+          <div className="flex flex-col gap-2">
+            <label className="text-sm font-bold text-navy-900">Your Review *</label>
             <textarea
-              id="feedback-comment-input"
               value={comment}
               onChange={(e) => setComment(e.target.value)}
               placeholder="Share what you liked or didn't like about this course. Your feedback helps other learners make better decisions."
               rows={5}
-              className="form-input"
-              style={{ width: '100%', resize: 'vertical', lineHeight: '1.6' }}
+              className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-navy/20 focus:border-navy transition-all shadow-inner resize-y leading-relaxed"
               required
             />
-            <div style={{ textAlign: 'right', fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '4px' }}>
+            <div className="text-right text-xs font-semibold text-slate-400 mt-1">
               {comment.length} / 1000
             </div>
           </div>
 
           {error && (
-            <div style={modalStyles.error}>{error}</div>
+            <div className="p-3 bg-coral-50 border border-coral-200 text-coral-600 rounded-xl text-sm font-bold">
+              {error}
+            </div>
           )}
 
-          <button
-            type="submit"
-            id="submit-feedback-btn"
-            disabled={submitting}
-            className="btn-primary"
-            style={{ padding: '0.85rem 2rem', fontSize: '0.95rem', borderRadius: '12px', alignSelf: 'flex-end' }}
-          >
-            {submitting ? 'Submitting…' : (
-              <><Send size={16} /> Submit Review</>
-            )}
-          </button>
+          <div className="pt-2 border-t border-slate-100 flex justify-end">
+            <button
+              type="submit"
+              disabled={submitting}
+              className="px-8 py-3.5 bg-navy hover:bg-navy-800 text-white font-bold rounded-xl shadow-sm hover:shadow-md transition-all hover:-translate-y-0.5 disabled:opacity-50 flex items-center gap-2"
+            >
+              {submitting ? 'Submitting…' : (
+                <><Send size={18} /> Submit Review</>
+              )}
+            </button>
+          </div>
         </form>
       </div>
     </div>
   );
 }
-
-const modalStyles = {
-  overlay: {
-    position: 'fixed', inset: 0,
-    background: 'rgba(0,0,0,0.45)',
-    backdropFilter: 'blur(6px)',
-    WebkitBackdropFilter: 'blur(6px)',
-    zIndex: 1000,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: '1.5rem',
-    animation: 'fadeIn 0.2s ease',
-  },
-  modal: {
-    background: '#fff',
-    borderRadius: '20px',
-    width: '100%',
-    maxWidth: '560px',
-    maxHeight: '90vh',
-    overflowY: 'auto',
-    padding: '32px',
-    boxShadow: '0 24px 60px rgba(0,0,0,0.18)',
-    animation: 'slideUpFade 0.3s cubic-bezier(0.16,1,0.3,1)',
-  },
-  header: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: '24px',
-    gap: '12px',
-  },
-  title: {
-    fontFamily: 'var(--font-heading)',
-    fontSize: '1.4rem',
-    fontWeight: '800',
-    color: 'var(--text-primary)',
-    marginBottom: '4px',
-  },
-  subtitle: {
-    fontSize: '0.85rem',
-    color: 'var(--text-muted)',
-  },
-  closeBtn: {
-    background: 'rgba(0,0,0,0.05)',
-    border: 'none',
-    borderRadius: '50%',
-    width: '36px',
-    height: '36px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    cursor: 'pointer',
-    color: 'var(--text-muted)',
-    flexShrink: 0,
-    transition: 'background 0.15s',
-  },
-  field: { display: 'flex', flexDirection: 'column', gap: '6px' },
-  label: {
-    fontSize: '0.85rem',
-    fontWeight: '600',
-    color: 'var(--text-primary)',
-  },
-  select: {
-    width: '100%',
-    padding: '0.75rem 2.2rem 0.75rem 1rem',
-    border: '1px solid rgba(0,0,0,0.1)',
-    borderRadius: '0.5rem',
-    fontSize: '0.875rem',
-    fontFamily: 'var(--font-sans)',
-    color: 'var(--text-primary)',
-    background: '#fff',
-    outline: 'none',
-    appearance: 'none',
-    cursor: 'pointer',
-  },
-  error: {
-    padding: '10px 14px',
-    borderRadius: '8px',
-    background: 'rgba(239,68,68,0.07)',
-    border: '1px solid rgba(239,68,68,0.2)',
-    color: '#dc2626',
-    fontSize: '0.85rem',
-  },
-};
 
 // ─── Main FeedbackPage ───────────────────────────────────────────────────────
 export default function FeedbackPage({ user, onOpenAuth, insideDashboard = false }) {
@@ -541,140 +357,138 @@ export default function FeedbackPage({ user, onOpenAuth, insideDashboard = false
     count: feedbackList.filter((fb) => fb.rating === r).length,
   }));
 
+  const containerClass = insideDashboard 
+    ? "flex-1 overflow-y-auto no-scrollbar bg-slate-50 flex flex-col relative"
+    : "min-h-screen bg-slate-50 flex flex-col relative";
+
   return (
-    <div style={insideDashboard ? { ...pageStyles.page, flex: 1, overflowY: 'auto', minHeight: 0 } : pageStyles.page}>
+    <div className={containerClass}>
+      
       {/* ── Hero Banner ─────────────────────────────────── */}
-      <section style={{ ...pageStyles.heroBanner, padding: insideDashboard ? '40px 0 36px' : '100px 0 60px' }}>
-        <div className="container" style={pageStyles.heroInner}>
-          <div style={pageStyles.heroText}>
-            <div style={pageStyles.heroBadge}>
-              <MessageSquare size={14} />
-              Community Reviews
+      <section className={`bg-white border-b border-slate-200 ${insideDashboard ? 'py-8 px-6 md:px-8' : 'pt-32 pb-16 px-6'}`}>
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-start justify-between gap-10">
+          
+          <div className="flex-1 max-w-2xl">
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 text-blue-600 rounded-lg text-xs font-bold border border-blue-100 mb-6 uppercase tracking-wider">
+              <MessageSquare size={14} /> Community Reviews
             </div>
-            <h1 style={pageStyles.heroTitle}>
-              What Learners Are{' '}
-              <span className="text-gradient-cyan">Saying</span>
+            <h1 className="text-4xl md:text-5xl font-bold text-navy-900 leading-tight mb-4">
+              What Learners Are <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-cyan-400 pb-2">Saying</span>
             </h1>
-            <p style={pageStyles.heroSubtitle}>
+            <p className="text-slate-500 text-lg font-medium leading-relaxed mb-8 max-w-xl">
               Real reviews from real learners. Discover what makes each course special — or help the community by sharing your own experience.
             </p>
             <button
-              id="write-review-hero-btn"
-              className="btn-primary"
               onClick={() => {
                 if (user) setShowModal(true);
                 else if (onOpenAuth) onOpenAuth();
               }}
-              style={{ padding: '0.85rem 2rem', fontSize: '0.95rem', borderRadius: '12px', marginTop: '8px' }}
+              className="px-6 py-3.5 bg-navy hover:bg-navy-800 text-white font-bold rounded-xl shadow-sm hover:shadow-md transition-all hover:-translate-y-0.5 flex items-center gap-2 w-full sm:w-auto justify-center"
             >
-              <MessageSquare size={17} />
+              <MessageSquare size={18} />
               {user ? 'Write a Review' : 'Sign in to Review'}
             </button>
           </div>
 
           {/* Stats Summary */}
           {totalReviews > 0 && (
-            <div style={pageStyles.statsSummary} className="glass">
-              <div style={pageStyles.bigRating}>
-                <span style={pageStyles.bigRatingNum}>{avgRating}</span>
-                <StarRating value={Math.round(avgRating)} readOnly size={22} />
-                <span style={pageStyles.totalReviews}>{totalReviews} review{totalReviews !== 1 ? 's' : ''}</span>
+            <div className="w-full md:w-80 bg-white rounded-2xl border border-slate-200 shadow-sm p-6 shrink-0 flex flex-col gap-6">
+              <div className="flex flex-col items-center gap-2 pb-5 border-b border-slate-100">
+                <span className="text-5xl font-bold text-navy-900 leading-none">{avgRating}</span>
+                <StarRating value={Math.round(avgRating)} readOnly size={24} />
+                <span className="text-sm font-semibold text-slate-400">{totalReviews} review{totalReviews !== 1 ? 's' : ''}</span>
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', flex: 1 }}>
+              <div className="flex flex-col gap-3">
                 {ratingCounts.map(({ star, count }) => (
                   <RatingBar key={star} label={star} count={count} total={totalReviews} />
                 ))}
               </div>
             </div>
           )}
+          
         </div>
       </section>
 
       {/* ── Success Toast ───────────────────────────────── */}
       {successMsg && (
-        <div style={pageStyles.toast}>
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2 px-6 py-3 bg-emerald-500 text-white font-bold text-sm rounded-full shadow-lg shadow-emerald-500/30 z-50 animate-in slide-in-from-bottom-8 duration-300">
           <CheckCircle size={18} />
           {successMsg}
         </div>
       )}
 
       {/* ── Filters Bar ─────────────────────────────────── */}
-      <section style={insideDashboard
-        ? { ...pageStyles.filtersSection, position: 'static', top: 'unset', background: 'rgba(250,247,242,0.6)' }
-        : pageStyles.filtersSection
-      }>
-        <div className="container" style={pageStyles.filtersRow}>
-          {/* Search */}
-          <div style={pageStyles.searchWrap}>
-            <Search size={16} style={pageStyles.searchIcon} />
+      <section className={`bg-slate-50/80 backdrop-blur-md border-b border-slate-200 z-30 ${insideDashboard ? 'sticky top-0 py-4 px-6 md:px-8' : 'sticky top-16 py-4 px-6'}`}>
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-4">
+          
+          <div className="relative flex-1 w-full md:w-auto min-w-[240px]">
+            <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
-              id="feedback-search-input"
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search reviews…"
-              className="form-input"
-              style={{ paddingLeft: '2.5rem', minWidth: '220px', flex: '1' }}
+              className="w-full pl-11 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-navy/20 focus:border-navy shadow-sm transition-all"
             />
           </div>
 
-          {/* Course Filter */}
-          <div style={{ position: 'relative' }}>
-            <Filter size={15} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', pointerEvents: 'none' }} />
-            <select
-              id="feedback-course-filter"
-              value={selectedCourseId}
-              onChange={(e) => setSelectedCourseId(e.target.value)}
-              style={{ ...modalStyles.select, paddingLeft: '2.2rem', minWidth: '200px' }}
-            >
-              <option value="all">All Courses</option>
-              {courses.map((c) => (
-                <option key={c.id} value={c.id}>{c.title.length > 45 ? c.title.slice(0, 45) + '…' : c.title}</option>
-              ))}
-            </select>
-          </div>
+          <div className="flex gap-4 w-full md:w-auto flex-wrap sm:flex-nowrap">
+            <div className="relative w-full sm:w-auto">
+              <Filter size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+              <select
+                value={selectedCourseId}
+                onChange={(e) => setSelectedCourseId(e.target.value)}
+                className="w-full sm:min-w-[200px] pl-10 pr-10 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-navy/20 focus:border-navy shadow-sm appearance-none cursor-pointer"
+              >
+                <option value="all">All Courses</option>
+                {courses.map((c) => (
+                  <option key={c.id} value={c.id}>{c.title.length > 45 ? c.title.slice(0, 45) + '…' : c.title}</option>
+                ))}
+              </select>
+              <ChevronDown size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+            </div>
 
-          {/* Sort */}
-          <div style={{ position: 'relative' }}>
-            <select
-              id="feedback-sort-select"
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              style={{ ...modalStyles.select, minWidth: '160px' }}
-            >
-              <option value="newest">Newest First</option>
-              <option value="highest">Highest Rated</option>
-              <option value="lowest">Lowest Rated</option>
-              <option value="helpful">Most Helpful</option>
-            </select>
+            <div className="relative w-full sm:w-auto">
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="w-full sm:min-w-[160px] pl-4 pr-10 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-navy/20 focus:border-navy shadow-sm appearance-none cursor-pointer"
+              >
+                <option value="newest">Newest First</option>
+                <option value="highest">Highest Rated</option>
+                <option value="lowest">Lowest Rated</option>
+                <option value="helpful">Most Helpful</option>
+              </select>
+              <ChevronDown size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+            </div>
           </div>
+          
         </div>
       </section>
 
       {/* ── Reviews Grid ────────────────────────────────── */}
-      <section style={pageStyles.reviewsSection}>
-        <div className="container">
+      <section className={`flex-1 ${insideDashboard ? 'p-6 md:p-8' : 'py-12 px-6'}`}>
+        <div className="max-w-6xl mx-auto flex flex-col h-full">
           {loading ? (
-            <div style={pageStyles.emptyState}>
-              <div style={pageStyles.spinner} />
-              <p style={{ color: 'var(--text-muted)' }}>Loading reviews…</p>
+            <div className="flex-1 flex flex-col items-center justify-center py-20">
+              <div className="w-10 h-10 border-4 border-slate-200 border-t-navy rounded-full animate-spin mb-4" />
+              <p className="text-slate-500 font-semibold">Loading reviews…</p>
             </div>
           ) : filteredFeedback.length === 0 ? (
-            <div style={pageStyles.emptyState}>
-              <div style={{ fontSize: '3rem', marginBottom: '12px' }}>💬</div>
-              <h3 style={{ fontFamily: 'var(--font-heading)', fontSize: '1.2rem', color: 'var(--text-primary)', marginBottom: '8px' }}>
+            <div className="flex-1 flex flex-col items-center justify-center py-16 bg-white rounded-3xl border border-slate-100 shadow-sm text-center px-6">
+              <div className="text-5xl mb-4">💬</div>
+              <h3 className="text-xl font-bold text-navy-900 mb-2">
                 {feedbackList.length === 0 ? 'No reviews yet' : 'No reviews match your search'}
               </h3>
-              <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem', maxWidth: '320px', textAlign: 'center' }}>
+              <p className="text-slate-500 font-medium mb-6 max-w-sm leading-relaxed">
                 {feedbackList.length === 0
                   ? 'Be the first to share your experience with a course!'
                   : 'Try adjusting your search or filter criteria.'}
               </p>
               {feedbackList.length === 0 && (
                 <button
-                  className="btn-primary"
-                  onClick={() => user ? setShowModal(true) : onOpenAuth()}
-                  style={{ marginTop: '16px', padding: '0.7rem 1.5rem', fontSize: '0.875rem', borderRadius: '10px' }}
+                  className="px-6 py-3 bg-navy hover:bg-navy-800 text-white font-bold rounded-xl shadow-sm hover:shadow-md transition-all hover:-translate-y-0.5"
+                  onClick={() => user ? setShowModal(true) : onOpenAuth?.()}
                 >
                   Write the First Review
                 </button>
@@ -682,13 +496,13 @@ export default function FeedbackPage({ user, onOpenAuth, insideDashboard = false
             </div>
           ) : (
             <>
-              <div style={pageStyles.reviewsHeader}>
-                <span style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>
-                  Showing <strong>{filteredFeedback.length}</strong> review{filteredFeedback.length !== 1 ? 's' : ''}
+              <div className="flex justify-between items-center mb-6">
+                <span className="text-slate-500 text-sm font-semibold">
+                  Showing <strong className="text-navy-900">{filteredFeedback.length}</strong> review{filteredFeedback.length !== 1 ? 's' : ''}
                 </span>
               </div>
 
-              <div style={pageStyles.grid}>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-12">
                 {filteredFeedback.map((fb) => (
                   <FeedbackCard key={fb.id} feedback={fb} />
                 ))}
@@ -707,176 +521,6 @@ export default function FeedbackPage({ user, onOpenAuth, insideDashboard = false
           onSubmit={handleSubmitSuccess}
         />
       )}
-
-      <style>{`
-        .feedback-card:hover {
-          box-shadow: 0 8px 24px rgba(0,0,0,0.09);
-          transform: translateY(-2px);
-        }
-        @keyframes fadeIn { from { opacity:0 } to { opacity:1 } }
-        @keyframes slideUpFade {
-          from { transform: translateY(24px); opacity:0; }
-          to   { transform: translateY(0);    opacity:1; }
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
-      `}</style>
     </div>
   );
 }
-
-const pageStyles = {
-  page: {
-    minHeight: '100vh',
-    background: 'var(--bg-dark)',
-  },
-  heroBanner: {
-    background: 'linear-gradient(135deg, rgba(37,99,235,0.06) 0%, rgba(79,70,229,0.04) 60%, rgba(250,247,242,0) 100%)',
-    borderBottom: '1px solid rgba(0,0,0,0.06)',
-    padding: '100px 0 60px',
-  },
-  heroInner: {
-    display: 'flex',
-    alignItems: 'flex-start',
-    justifyContent: 'space-between',
-    gap: '48px',
-    flexWrap: 'wrap',
-  },
-  heroText: { flex: 1, minWidth: '280px' },
-  heroBadge: {
-    display: 'inline-flex',
-    alignItems: 'center',
-    gap: '6px',
-    padding: '5px 14px',
-    borderRadius: '999px',
-    background: 'rgba(37,99,235,0.08)',
-    border: '1px solid rgba(37,99,235,0.15)',
-    color: 'var(--color-accent-blue)',
-    fontSize: '0.8rem',
-    fontWeight: '600',
-    marginBottom: '16px',
-  },
-  heroTitle: {
-    fontFamily: 'var(--font-heading)',
-    fontSize: 'clamp(2rem, 4vw, 3rem)',
-    fontWeight: '800',
-    color: 'var(--text-primary)',
-    lineHeight: '1.2',
-    marginBottom: '16px',
-    letterSpacing: '-0.03em',
-  },
-  heroSubtitle: {
-    fontSize: '1rem',
-    color: 'var(--text-secondary)',
-    lineHeight: '1.7',
-    maxWidth: '480px',
-  },
-  statsSummary: {
-    borderRadius: '20px',
-    padding: '24px',
-    minWidth: '280px',
-    maxWidth: '340px',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '16px',
-  },
-  bigRating: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    gap: '6px',
-    paddingBottom: '16px',
-    borderBottom: '1px solid rgba(0,0,0,0.06)',
-  },
-  bigRatingNum: {
-    fontSize: '3rem',
-    fontWeight: '800',
-    fontFamily: 'var(--font-heading)',
-    color: 'var(--text-primary)',
-    lineHeight: 1,
-  },
-  totalReviews: {
-    fontSize: '0.8rem',
-    color: 'var(--text-muted)',
-    marginTop: '2px',
-  },
-  toast: {
-    position: 'fixed',
-    bottom: '24px',
-    left: '50%',
-    transform: 'translateX(-50%)',
-    display: 'inline-flex',
-    alignItems: 'center',
-    gap: '8px',
-    padding: '12px 24px',
-    borderRadius: '999px',
-    background: '#16a34a',
-    color: '#fff',
-    fontSize: '0.875rem',
-    fontWeight: '600',
-    boxShadow: '0 8px 24px rgba(22,163,74,0.3)',
-    zIndex: 2000,
-    animation: 'slideUpFade 0.3s ease',
-  },
-  filtersSection: {
-    position: 'sticky',
-    top: '72px',
-    zIndex: 50,
-    background: 'rgba(250,247,242,0.9)',
-    backdropFilter: 'blur(12px)',
-    WebkitBackdropFilter: 'blur(12px)',
-    borderBottom: '1px solid rgba(0,0,0,0.06)',
-    padding: '14px 0',
-  },
-  filtersRow: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '12px',
-    flexWrap: 'wrap',
-  },
-  searchWrap: {
-    position: 'relative',
-    display: 'flex',
-    alignItems: 'center',
-    flex: 1,
-    minWidth: '180px',
-  },
-  searchIcon: {
-    position: 'absolute',
-    left: '12px',
-    color: 'var(--text-muted)',
-    pointerEvents: 'none',
-  },
-  reviewsSection: {
-    padding: '40px 0 80px',
-  },
-  reviewsHeader: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: '24px',
-    flexWrap: 'wrap',
-    gap: '12px',
-  },
-  grid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))',
-    gap: '20px',
-  },
-  emptyState: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: '80px 24px',
-    textAlign: 'center',
-  },
-  spinner: {
-    width: '40px',
-    height: '40px',
-    border: '3px solid rgba(37,99,235,0.15)',
-    borderTopColor: 'var(--color-accent-blue)',
-    borderRadius: '50%',
-    animation: 'spin 0.8s linear infinite',
-    marginBottom: '16px',
-  },
-};

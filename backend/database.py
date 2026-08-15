@@ -47,6 +47,20 @@ except Exception as e:
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
+def run_auto_migrations(eng):
+    from sqlalchemy import text
+    try:
+        with eng.connect() as conn:
+            if "postgres" in str(eng.url):
+                conn.execute(text("ALTER TABLE mock_test_attempts ADD COLUMN IF NOT EXISTS score FLOAT;"))
+                conn.execute(text("ALTER TABLE mock_test_attempts ADD COLUMN IF NOT EXISTS total_questions INTEGER DEFAULT 10;"))
+                conn.execute(text("ALTER TABLE mock_test_attempts ADD COLUMN IF NOT EXISTS status VARCHAR DEFAULT 'completed';"))
+            conn.commit()
+    except Exception as e:
+        logger.warning(f"Auto-migration check skipped or failed: {e}")
+
+run_auto_migrations(engine)
+
 def get_db():
     db = SessionLocal()
     try:
